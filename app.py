@@ -7,11 +7,21 @@ app = Flask(__name__)
 #define the app
 @app.route("/")
 def home():
-    return "Hello"
+    return (
+        f"Hello!<br/>"
+        f"Available Routes:<br/>"
+        f"/api/v1.0/precipitation<br/>"
+        f"/api/v1.0/stations<br/>"
+        f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/<start><br/>"
+        f"/api/v1.0/<start>/<end><br/>"
+
 
 @app.route("/api/v1.0/precipitation")
 def prcp():
-    return prcp_dict
+    return (
+        prcp_dict
+    
 
 @app.route("/api/v1.0/stations")
 def stations():
@@ -22,10 +32,12 @@ def tobs():
     return tobs
 
 @app.route("/api/v1.0/<start>")
-
+def start():
+    return
 
 @app.route("/api/v1.0/<start>/<end>")
-
+def start():
+    return
 
 
     
