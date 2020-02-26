@@ -24,16 +24,14 @@ from sqlalchemy.ext.declarative import declarative_base
 from flask import Flask, jsonify
 
 #set-up the sqlite database
-engine = create_engine("sqlite:///hawaii.sqlite", convert_unicode=True)
+engine = create_engine("sqlite:///hawaii.sqlite",convert_unicode=True, echo=False)
 
 Base = automap_base()
 
 Base.prepare(engine, reflect=True)
 
-print(Base.classes.keys())
 Measurement = Base.classes.measurement
 Station = Base.classes.station
-
 
 
 #create an app
@@ -64,17 +62,47 @@ def prcp():
     prcp_dict = dict(np.ravel(prcp_data))
     return jsonify(prcp_dict)
     
+
+
 @app.route("/api/v1.0/stations")
 def weatherstations():
     return jsonify(stations)
 
+
+
 @app.route("/api/v1.0/tobs")
 def tobs():
-    return tobs
+    session=Session(engine)
+
+    tempdata = session.query(Measurement.id, Measurement.station, Measurement.tobs).\
+        filter(Measurement.date > '2016-08-22').\
+         order_by(Measurement.date.desc()).all()
+
+    session.close()
+
+    return jsonify(tempdata)
+
+
 
 @app.route("/api/v1.0/<start>")
 def start():
-    return
+
+    session=Session(engine)
+     """TMIN, TAVG, and TMAX for a list of dates.
+    
+    Args:
+        start_date (string): A date string in the format %Y-%m-%d
+        end_date (string): A date string in the format %Y-%m-%d
+        
+    Returns:
+        TMIN, TAVE, and TMAX
+    """
+
+            return session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
+    def calc_temps(start_date, end_date):
+
+    return (calc_temps('2016-09-01','2017-08-23'))
 
 @app.route("/api/v1.0/<start>/<end>")
 def startend():
