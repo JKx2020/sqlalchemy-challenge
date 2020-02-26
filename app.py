@@ -10,9 +10,31 @@ stations = [
     'USC00517948',
     'USC00518838']
 
+min_max_avg = ["54","85","71.66378066378067"]
 
 #import Flask
+import numpy as np
+
+import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, func
+from sqlalchemy.ext.declarative import declarative_base
+
 from flask import Flask, jsonify
+
+#set-up the sqlite database
+engine = create_engine("sqlite:///hawaii.sqlite", convert_unicode=True)
+
+Base = automap_base()
+
+Base.prepare(engine, reflect=True)
+
+print(Base.classes.keys())
+Measurement = Base.classes.measurement
+Station = Base.classes.station
+
+
 
 #create an app
 app = Flask(__name__)
@@ -32,12 +54,18 @@ def home():
 
 @app.route("/api/v1.0/precipitation")
 def prcp():
-    return (
-        prcp_dict
-    
 
+    session=Session(engine)
+
+    prcp_data = session.query(Measurement.date, Measurement.prcp).all()
+
+    session.close()
+
+    prcp_dict = dict(np.ravel(prcp_data))
+    return jsonify(prcp_dict)
+    
 @app.route("/api/v1.0/stations")
-def stations():
+def weatherstations():
     return jsonify(stations)
 
 @app.route("/api/v1.0/tobs")
@@ -49,8 +77,9 @@ def start():
     return
 
 @app.route("/api/v1.0/<start>/<end>")
-def start():
-    return
+def startend():
+    return jsonify(min_max_avg)
 
-
+if __name__ == "__main__":
+    app.run(debug=True)
     
